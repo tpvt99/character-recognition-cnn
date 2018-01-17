@@ -11,4 +11,4 @@ These instructions will help you run this project on a Linux machine.
 
 Data of this project is downloaded from https://www.nist.gov/srd/nist-special-database-19.  
 
-
+If you don't want to download database on this website, you should use the training data I provide in folder data_base/
