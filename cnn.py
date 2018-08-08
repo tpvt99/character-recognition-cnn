@@ -118,80 +118,90 @@ def forward_propagation(X, keep_prob):
     return Z5
 
 def compute_cost(Z3, Y):
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = Z3, labels = Y))
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits = Z3, labels = Y))
 
     return cost
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001, keep_prob_prob = 1,
         num_epochs = 20, minibatch_size = 64, print_cost = True):
 
-    ops.reset_default_graph()
-    tf.set_random_seed(1)
-    seed = 3
-    m, n_H0, n_W0, n_C0 = X_train.shape
-    n_y = Y_train.shape[1]
-    costs = []
+	ops.reset_default_graph()
+	tf.set_random_seed(1)
+	seed = 3
+	m, n_H0, n_W0, n_C0 = X_train.shape
+	n_y = Y_train.shape[1]
+	costs = []
 
-    X, Y, keep_prob = create_placeholders(n_H0, n_W0, n_C0, n_y)
+	X, Y, keep_prob = create_placeholders(n_H0, n_W0, n_C0, n_y)
 
-    Z3 = forward_propagation(X, keep_prob)
+	Z3 = forward_propagation(X, keep_prob)
 
-    cost = compute_cost(Z3, Y)
+	cost = compute_cost(Z3, Y)
 
-    optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cost)
+	optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cost)
 
-    init = tf.global_variables_initializer()
+	init = tf.global_variables_initializer()
 
-    with tf.Session() as sess:
+	# This is for accuracy testing
+	y_pred = tf.nn.softmax(Z3)
+	y_pred_class = tf.argmax(y_pred, axis = 1)
+	y_true_class = tf.argmax(Y, axis = 1)
 
-        sess.run(init)
+	correct_prediction = tf.equal(y_pred_class, y_true_class)
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-        for epoch in range(num_epochs):
+	with tf.Session() as sess:
 
-            minibatch_cost = 0
-            num_minibatches = int(m / minibatch_size)
-            seed = seed + 1
-            minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
+		sess.run(init)
 
-            for minibatch in minibatches:
+		for epoch in range(num_epochs):
 
-                minibatch_X, minibatch_Y = minibatch
+			minibatch_cost = 0
+			num_minibatches = int(m / minibatch_size)
+			seed = seed + 1
+			minibatches = random_mini_batches(X_train, Y_train, minibatch_size, seed)
 
-                _, temp_cost = sess.run([optimizer, cost], {X:minibatch_X, Y:minibatch_Y, keep_prob :keep_prob_prob})
-                minibatch_cost += temp_cost / num_minibatches
+			for minibatch in minibatches:
 
+				minibatch_X, minibatch_Y = minibatch
 
-            if print_cost == True:
-                print("Cost after epoch %i %f" %(epoch, minibatch_cost))
-                costs.append(minibatch_cost)
-
-        plt.plot(np.squeeze(costs))
-        plt.ylabel('cost')
-        plt.xlabel('iterations (per tens)')
-        plt.title("Learning rate = " + str(learning_rate))
-        plt.show()
-        saver = tf.train.Saver()
-        saver.save(sess, 'my-model.ckpt')
-
-        predict_op = tf.argmax(Z3, 1)
-        correct_prediction = tf.equal(predict_op, tf.argmax(Y,1))
-
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-        print(accuracy)
-        train_accuracy = accuracy.eval({X: X_train, Y: Y_train, keep_prob: keep_prob_prob})
-        test_accuracy = accuracy.eval({X: X_test, Y: Y_test, keep_prob: keep_prob_prob})
-        print("Train Accuracy:", train_accuracy)
-        print("Test Accuracy:", test_accuracy)
+				_, temp_cost = sess.run([optimizer, cost], {X:minibatch_X, Y:minibatch_Y, keep_prob :keep_prob_prob})
+				minibatch_cost += temp_cost / num_minibatches
 
 
-        return None
+			if print_cost == True:
+				print("Cost after epoch %i %f" %(epoch, minibatch_cost))
+				costs.append(minibatch_cost)
+
+			acc = sess.run(accuracy, feed_dict = {X: X_test, Y: Y_test, keep_prob : keep_prob_prob})
+			print("Accuracy on test dataset after epoch %i: %f" %(epoch, acc))
+
+		plt.plot(np.squeeze(costs))
+		plt.ylabel('cost')
+		plt.xlabel('iterations (per tens)')
+		plt.title("Learning rate = " + str(learning_rate))
+		plt.show()
+		saver = tf.train.Saver()
+		saver.save(sess, 'my-model.ckpt')
+
+		predict_op = tf.argmax(Z3, 1)
+		correct_prediction = tf.equal(predict_op, tf.argmax(Y,1))
+
+		accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+		print(accuracy)
+		train_accuracy = accuracy.eval({X: X_train, Y: Y_train, keep_prob: keep_prob_prob})
+		test_accuracy = accuracy.eval({X: X_test, Y: Y_test, keep_prob: keep_prob_prob})
+		print("Train Accuracy:", train_accuracy)
+		print("Test Accuracy:", test_accuracy)
+
+
+		return None
 
 if __name__ == "__main__":
 	train_inputs, train_outputs , test_inputs, test_outputs = np.load('training_inputs_0_9.npy'), np.load('training_outputs_0_9.npy'), np.load('test_inputs_0_9.npy'), np.load('test_outputs_0_9.npy')
 
 	X = np.array(train_inputs)
 	Y = np.array(train_outputs)
-	print(Y.shape)
 	Y = Y.reshape(Y.shape[0],Y.shape[1])
 	X_test = np.array(test_inputs)
 	Y_test = np.array(test_outputs)
