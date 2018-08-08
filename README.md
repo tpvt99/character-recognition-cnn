@@ -15,5 +15,7 @@ If you don't want to download database on this website, you should use the train
 
 ### Steps
 Running load_data.py to generate all the data requires to recognize number from 0 to 9
+
 Then run cnn.py to train
+
 Last, run test.py to recognize the character. You need a camera, a paper with a number you draw on it. Move the paper to the near webcam and see the result.
