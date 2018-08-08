@@ -3,9 +3,8 @@ import numpy as np
 from PIL import Image, ImageFilter
 import cv2
 
-
-parent_path = '/home/web/nn'
-all_directories = os.listdir(parent_path + '/')
+parent_path = './database'
+all_directories = os.listdir(parent_path+ '/')
 
 training_inputs = []
 training_outputs = []

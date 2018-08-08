@@ -187,19 +187,19 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.001, keep_prob_pro
         return None
 
 if __name__ == "__main__":
-    train_inputs, train_outputs , test_inputs, test_outputs = np.load('training_inputs_0_9.npy'), np.load('training_outputs_0_9.npy'), np.load('test_inputs_0_9.npy'), np.load('test_outputs_0_9.npy')
+	train_inputs, train_outputs , test_inputs, test_outputs = np.load('training_inputs_0_9.npy'), np.load('training_outputs_0_9.npy'), np.load('test_inputs_0_9.npy'), np.load('test_outputs_0_9.npy')
 
-    X = np.array(train_inputs)
-    Y = np.array(train_outputs)
-    Y = Y.reshape(Y.shape[0],Y.shape[1])
+	X = np.array(train_inputs)
+	Y = np.array(train_outputs)
+	print(Y.shape)
+	Y = Y.reshape(Y.shape[0],Y.shape[1])
+	X_test = np.array(test_inputs)
+	Y_test = np.array(test_outputs)
+	Y_test = Y_test.reshape(Y_test.shape[0], Y_test.shape[1])
+	print(X.shape)
+	print(Y.shape)
+	print(X_test.shape)
+	print(Y_test.shape)
 
-    X_test = np.array(test_inputs)
-    Y_test = np.array(test_outputs)
-    Y_test = Y_test.reshape(Y_test.shape[0], Y_test.shape[1])
-    print(X.shape)
-    print(Y.shape)
-    print(X_test.shape)
-    print(Y_test.shape)
-
-    parameters = model(X_train = X, Y_train = Y, X_test = X_test, Y_test = Y_test)
-    print(parameters)
+	parameters = model(X_train = X, Y_train = Y, X_test = X_test, Y_test = Y_test)
+	print(parameters)
